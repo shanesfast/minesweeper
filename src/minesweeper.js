@@ -27,11 +27,41 @@ const generateBombBoard = (numberOfRows, numberOfColumns, numberOfBombs) => {
     while (numberOfBombsPlaced < numberOfBombs) {
         let randomRowIndex = getRandomInt(numberOfRows);
         let randomColIndex = getRandomInt(numberOfColumns);
-        board[randomRowIndex][randomColIndex] = "B";
-        numberOfBombsPlaced ++;
-        /* currently, this while loop can place bombs on top of previously placed bombs. Fix This! */
+        if (board[randomRowIndex][randomColIndex] !== "B") {
+          board[randomRowIndex][randomColIndex] = "B";
+          numberOfBombsPlaced ++;
+        }
     }
     return board;
+}
+
+const getNumberOfNeighborBombs = (bombBoard, rowIndex, colIndex) => {
+    const neighborOffsets = [[-1,-1], [-1,0], [-1,1], [0,-1], [0,1], [1,-1], [1,0], [1,1]];
+    const numberOfRows = bombBoard.length;
+    const numberOfColumns = bombBoard[rowIndex].length;
+    let numberOfBombs = 0;
+    neighborOffsets.forEach(offset => {
+        const neighborRowIndex = rowIndex + offset[0];
+        const neighborColIndex = colIndex + offset[1];
+        if (neighborRowIndex >= 0 && neighborRowIndex <= numberOfRows
+        && neighborColIndex >= 0 && neighborColIndex <= numberOfColumns) {
+              if (bombBoard[neighborRowIndex][neighborColIndex] === "B") {
+                numberOfBombs ++;
+              }
+        }
+    });
+    return numberOfBombs;
+}
+
+const flipTile = (playerBoard, bombBoard, rowIndex, colIndex) => {
+    if (playerBoard[rowIndex][colIndex] !== " ") {
+        console.log("\n" + "This tile has already been flipped!");
+        return;
+    } else if (bombBoard[rowIndex][colIndex] === "B") {
+        playerBoard[rowIndex][colIndex] = "B";
+    } else {
+        playerBoard[rowIndex][colIndex] = getNumberOfNeighborBombs(bombBoard, rowIndex, colIndex);
+    }
 }
 
 const printBoard = (board) => {
@@ -48,3 +78,7 @@ printBoard(playerBoard);
 console.log(" ");
 console.log("Bomb Board: " + "\n");
 printBoard(bombBoard);
+flipTile(playerBoard, bombBoard, 0, 0);
+console.log(" ");
+console.log("Updated Player Board: " + "\n");
+printBoard(playerBoard);
